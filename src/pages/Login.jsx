@@ -1,96 +1,160 @@
 import React, { useState } from "react";
 import "./Login.css";
+import { auth } from "../firebase/firebase";
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+} from "firebase/auth";
 
 function Login() {
-  // 1. Use React's useState to manage which form is active
   const [isLoginActive, setIsLoginActive] = useState(true);
 
-  // 2. Event handlers to switch the form view
-  const switchToLogin = () => setIsLoginActive(true);
-  const switchToRegister = () => setIsLoginActive(false);
+  // Login fields
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
 
-  // 3. Handlers for form submission (preventing default is essential in React too)
-  const handleLoginSubmit = (e) => {
+  // Register fields
+  const [regName, setRegName] = useState("");
+  const [regEmail, setRegEmail] = useState("");
+  const [regPassword, setRegPassword] = useState("");
+  const [showRegPassword, setShowRegPassword] = useState(false);
+
+  // LOGIN
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
-    alert("Logged in successfully");
-    // In a real app, you would handle authentication here (e.g., fetch, axios)
+    try {
+      await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
+      alert("Logged in successfully");
+      window.location.href = "/dashboard";
+    } catch (error) {
+      alert("Wrong email or password");
+    }
   };
 
-  const handleRegisterSubmit = (e) => {
+  // REGISTER
+  const handleRegisterSubmit = async (e) => {
     e.preventDefault();
-    alert("Account created successfully");
-    // In a real app, you would handle user creation here (e.g., fetch, axios)
+    try {
+      await createUserWithEmailAndPassword(auth, regEmail, regPassword);
+      alert("Account created successfully");
+      setIsLoginActive(true); // switch back to login tab
+    } catch (error) {
+      alert("There is something wrong, talk to NKO");
+    }
   };
 
   return (
     <div className="parent">
-    <div className="container">
-      <div className="form-box">
-        <div className="header">
-          {/* 4. Fix: Use 'className' instead of 'class' for all CSS classes in JSX */}
-          <div className="logo">
-            {/* Fix: Self-closing tags must end with '/>' and remove redundant closing tag */}
-            <img src="/images/exercise-computer-icons-clip-art-icon-fitness-8c8d87bc80357ee48e4c9519bf963b36.png" alt="Trophy" width="50" />
+      <div className="container">
+        <div className="form-box">
+          <div className="header">
+            <h2>Rugby Athletes</h2>
+            <p>Join the community</p>
           </div>
-          <h2>Rugby Athletes</h2>
-          <p>Join the community</p>
+
+          <div className="tab-buttons">
+            <button
+              className={isLoginActive ? "active" : ""}
+              onClick={() => setIsLoginActive(true)}
+            >
+              Login
+            </button>
+            <button
+              className={!isLoginActive ? "active" : ""}
+              onClick={() => setIsLoginActive(false)}
+            >
+              Register
+            </button>
+          </div>
+
+          {/* LOGIN FORM */}
+          {isLoginActive && (
+            <form className="form" onSubmit={handleLoginSubmit}>
+              <input
+                type="email"
+                placeholder="Email *"
+                required
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
+              />
+
+              <div className="password-field">
+                <input
+                  type={showLoginPassword ? "text" : "password"}
+                  placeholder="Password *"
+                  required
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="toggle-password"
+                  onClick={() => setShowLoginPassword(!showLoginPassword)}
+                >
+                  {showLoginPassword ? "Hide" : "Show"}
+                </button>
+              </div>
+
+              <button type="submit" className="submit-btn">
+                Login
+              </button>
+
+              <p className="toggle-text">
+                Don’t have an account?{" "}
+                <span onClick={() => setIsLoginActive(false)}>Register here</span>
+              </p>
+            </form>
+          )}
+
+          {/* REGISTER FORM */}
+          {!isLoginActive && (
+            <form className="form" onSubmit={handleRegisterSubmit}>
+              <input
+                type="text"
+                placeholder="Full Name *"
+                required
+                value={regName}
+                onChange={(e) => setRegName(e.target.value)}
+              />
+
+              <input
+                type="email"
+                placeholder="Email *"
+                required
+                value={regEmail}
+                onChange={(e) => setRegEmail(e.target.value)}
+              />
+
+              <div className="password-field">
+                <input
+                  type={showRegPassword ? "text" : "password"}
+                  placeholder="Password *"
+                  required
+                  value={regPassword}
+                  onChange={(e) => setRegPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="toggle-password"
+                  onClick={() => setShowRegPassword(!showRegPassword)}
+                >
+                  {showRegPassword ? "Hide" : "Show"}
+                </button>
+              </div>
+
+              <button type="submit" className="submit-btn">
+                Register
+              </button>
+
+              <p className="toggle-text">
+                Already have an account?{" "}
+                <span onClick={() => setIsLoginActive(true)}>Login here</span>
+              </p>
+            </form>
+          )}
         </div>
-
-        <div className="tab-buttons">
-          {/* 5. Logic for switching tabs uses the state handler onClick */}
-          <button
-            id="login-btn"
-            className={isLoginActive ? "active" : ""}
-            onClick={switchToLogin}
-          >
-            Login
-          </button>
-          <button
-            id="register-btn"
-            className={!isLoginActive ? "active" : ""}
-            onClick={switchToRegister}
-          >
-            Register
-          </button>
-        </div>
-
-        {/* 6. Form conditional rendering and submission handling */}
-        <form
-          id="login-form"
-          className={`form ${isLoginActive ? "" : "hidden"}`}
-          onSubmit={handleLoginSubmit}
-        >
-          {/* Fix: <input> tags are self-closing in JSX */}
-          <input type="email" id="login-email" placeholder="Email *" required />
-          <input type="password" id="login-password" placeholder="Password *" required />
-          <button type="submit" className="submit-btn">Login</button>
-          <p className="toggle-text">
-            Don't have an account?{" "}
-            <span id="show-register" onClick={switchToRegister}>
-              Register here
-            </span>
-          </p>
-        </form>
-
-        <form
-          id="register-form"
-          className={`form ${!isLoginActive ? "" : "hidden"}`}
-          onSubmit={handleRegisterSubmit}
-        >
-          {/* Fix: <input> tags are self-closing in JSX */}
-          <input type="text" id="register-name" placeholder="Full Name *" required />
-          <input type="email" id="register-email" placeholder="Email *" required />
-          <input type="password" id="register-password" placeholder="Password *" required />
-          <button type="submit" className="submit-btn">Register</button>
-          <p className="toggle-text">
-            Already have an account?{" "}
-            <span id="show-login" onClick={switchToLogin}>
-              Login here
-            </span>
-          </p>
-        </form>
       </div>
-    </div>
     </div>
   );
 }

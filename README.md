@@ -130,4 +130,4 @@ Firebase Authentication can be added for advanced security.
 ## 🙌 Credits
 
 Built by **Ntobeko (NKO)**  
-A rugby player, coach, and coder creating digital tools for real athletic improvement.
+A rugby player and coder creating digital tools for real athletic improvement.
